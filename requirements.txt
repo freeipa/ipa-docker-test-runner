@@ -1,0 +1,5 @@
+docker-py
+PyYAML
+pep8
+pylint
+pytest

@@ -1,0 +1,31 @@
+# Author: Martin Babinsky <martbab@gmail.com>
+# See LICENSE file for license
+
+"""
+Python package setup
+"""
+
+from distutils.core import setup
+from setuptools import find_packages
+
+
+setup(
+    author='Martin Babinsky',
+    author_email='martbab@gmail.com',
+    description='A program which builds FreeIPA and runs tests '
+                'in a Docker container',
+    entry_points={
+        'console_scripts': [
+            'ipa-docker-test-runner=ipadocker.cli:main'
+        ]
+    },
+    install_requires=['docker-py', 'PyYAML'],
+    license='GPLv3+',
+    name='ipa-docker-test-runner',
+    packages=find_packages(exclude=['data', 'tests']),
+    package_data={
+        'data': ['data/*']
+    },
+    version='0.1',
+    url='https://github.com/martbab/ipa-docker-test-runner',
+)

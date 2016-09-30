@@ -1,0 +1,16 @@
+language: python
+services: docker
+python:
+    - "3.4"
+    - "3.5"
+install:
+    - "pip install -r requirements.txt"
+    - "python3 setup.py install"
+
+# run checkers and tests. Pylint is currently ran in error mode only
+# since the code needs some more love. Will be addressed in a later PR
+script:
+    - "pep8 ipadocker/ tests/"
+    - "pylint -E ipadocker/ tests/"
+    - "./run-tests --verbose tests"
+
