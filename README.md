@@ -45,6 +45,12 @@ Run `ipa-docker-test-runner sample-config` to generate a YaML config file
 `git_repo` to point to your local copy of FreeIPA repository and `image`
 directive in `container` to the image you wish to use.
 
+See https://hub.docker.com/r/martbab/freeipa-fedora-test-runner/ for available
+images (currently only one for fedora-latest, but more will be coming soon)
+
+You can also build your own images from the Dockerfiles provided in the
+project git repo.
+
 Also make sure you have Docker daemon up and running and that you are member
 of `docker` group and can thus use it without root privileges.
 
