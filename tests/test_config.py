@@ -6,6 +6,7 @@ Tests for loading, validating, and saving the configuration
 """
 
 from copy import deepcopy
+from collections import OrderedDict
 import os
 
 import pytest
@@ -76,6 +77,38 @@ def test_config_validation(config_dict):
 
     else:
         config.validate_config(config_dict['data'], constants.DEFAULT_CONFIG)
+
+
+IPA_RUN_TESTS_CONFIGS = {
+    ('--verbose', '--ignore', 'test_integration'): OrderedDict(
+        (
+            ('verbose', True),
+            ('ignore', ['test_integration'])
+        )
+    ),
+    ('--ignore', 'test_integration', '--ignore', 'test_webui'): OrderedDict(
+        (
+            ('verbose', False),
+            ('ignore', ['test_integration', 'test_webui'])
+        )
+    ),
+}
+
+
+@pytest.fixture(params=IPA_RUN_TESTS_CONFIGS.items())
+def ipa_run_tests_config(request):
+    """
+    yield data mocking 'tests' section in config along with the expected list
+    of CLI params
+    """
+    return request.param[0], {'tests': request.param[1]}
+
+
+def test_run_test_config_parsing(ipa_run_tests_config):
+    expected, test_config = ipa_run_tests_config
+    run_tests_args = config.get_ipa_run_tests_options(test_config)
+
+    assert run_tests_args == list(expected)
 
 
 @pytest.fixture()

@@ -6,10 +6,13 @@ Class encapsulating the state and operations on an IPA container
 """
 
 import copy
+import itertools
 import logging
 import os
 
 import docker
+
+from ipadocker import config
 
 
 class ContainerExecError(Exception):
@@ -219,7 +222,9 @@ class IPAContainer:
         :param path: list of paths to execute (default: None, that means
         discovers all tests in `ipatests` directory)
         """
-        cmd = ['ipa-run-tests', '--verbose']
+        cmd = ['ipa-run-tests']
+        cmd.extend(config.get_ipa_run_tests_options(self.config))
+
         if path is not None:
             cmd.extend(path)
 

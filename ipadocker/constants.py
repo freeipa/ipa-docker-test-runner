@@ -44,9 +44,15 @@ DEFAULT_SERVER_CONFIG = {
     'password': 'Secret123'
 }
 
+DEFAULT_IPA_RUN_TEST_CONFIG = {
+    'ignore': ['test_integration', 'test_webui'],
+    'verbose': True
+}
+
 DEFAULT_CONFIG = {
     'git_repo': DEFAULT_GIT_REPO,
     'container': DEFAULT_CONTAINER_CONFIG,
     'host': DEFAULT_HOST_CONFIG,
-    'server': DEFAULT_SERVER_CONFIG
+    'server': DEFAULT_SERVER_CONFIG,
+    'tests': DEFAULT_IPA_RUN_TEST_CONFIG
 }

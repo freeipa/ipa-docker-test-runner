@@ -2,6 +2,7 @@
 # See LICENSE file for license
 
 from collections import ChainMap
+import itertools
 import logging
 import os
 
@@ -125,6 +126,34 @@ def load_default_config_file():
     with open(default_config_file, 'r') as input_file:
         logger.info("Parsing configuration file %s", default_config_file)
         return load_config_from_file(input_file)
+
+
+def get_ipa_run_tests_options(config):
+    """
+    Get a list of ipa-run-tests options from the IPADockerConfig object
+
+    :param config: IPADockerConfig instance
+
+    :returns: list of options parsed from the 'tests' section of the config
+    """
+
+    result = []
+    for key, value in config['tests'].items():
+        opt_name = '--{}'.format(key.replace('_', '-'))
+
+        if isinstance(value, (list, tuple)):
+            for i in itertools.product([opt_name], value):
+                result.extend(i)
+
+        elif isinstance(value, bool) and value:
+            result.append(opt_name)
+
+        elif isinstance(value, bool) and not value:
+            continue
+        else:
+            result.extend([opt_name, value])
+
+    return result
 
 
 class IPADockerConfig(object):
