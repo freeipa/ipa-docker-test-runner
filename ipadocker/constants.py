@@ -45,7 +45,11 @@ DEFAULT_SERVER_CONFIG = {
 }
 
 DEFAULT_IPA_RUN_TEST_CONFIG = {
-    'ignore': ['test_integration', 'test_webui'],
+    'ignore': [
+        'test_integration',
+        'test_webui',
+        'test_ipapython/test_keyring.py',
+    ],
     'verbose': True
 }
 
