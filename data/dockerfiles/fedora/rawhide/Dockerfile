@@ -1,8 +1,7 @@
 FROM martbab/freeipa-fedora-builder:master-rawhide
-ENV container docker
+ENV container=docker LANG=C LANGUAGE=C LC_ALL=C
 
-RUN echo LANG=C > /etc/locale.conf \
-    && dnf install -y freeipa-server freeipa-server-dns \
+RUN dnf install -y freeipa-server freeipa-server-dns \
         freeipa-server-trust-ad python-ipatests --best \
     && dnf clean all \
     && for i in /usr/lib/systemd/system/*-domainname.service; \
