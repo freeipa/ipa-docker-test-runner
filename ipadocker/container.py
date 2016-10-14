@@ -157,20 +157,30 @@ class IPAContainer:
         if exit_code:
             raise ContainerExecError(cmd, exit_code)
 
-    def build(self, make_target='rpms', developer_mode=False):
+    def build(self, make_target='rpms', developer_mode=False,
+              builddep_opts=None):
         """
         Build FreeIPA packages, i.e. run `make rpms` by default
 
         :param make_target: custom target for make, e.g. `lint`
         :param developer_mode: Ignore pylint errors (sets DEVELOPER_MODE
+        :param builddep_opts: If not None, a list of options to pass to `dnf
+            builddep`
         environment variable to 1)
         """
-        cmd = ['make', make_target]
+        build_cmd = ['make', make_target]
 
         if developer_mode:
-            cmd.insert(0, 'DEVELOPER_MODE=1')
+            build_cmd.insert(0, 'DEVELOPER_MODE=1')
 
-        self.exec_command(cmd)
+        builddep_cmd = ['dnf', 'builddep', '-y']
+        if builddep_opts is not None:
+            builddep_cmd.extend(builddep_opts)
+
+        builddep_cmd.extend(['--spec', 'freeipa.spec.in'])
+
+        self.exec_command(builddep_cmd)
+        self.exec_command(build_cmd)
 
     def install_packages(self):
         """

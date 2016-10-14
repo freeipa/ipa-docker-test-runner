@@ -100,6 +100,13 @@ def make_parser():
         action='store_true',
         help="developer mode (pylint errors during build are ignored)."
     )
+    build_cmd.add_argument(
+        '-b',
+        '--builddep-opts',
+        default=['-D "with_lint 1"'],
+        action='append',
+        help="options to pass to 'dnf builddep'"
+    )
 
     subcommands.add_parser(
         'install-server',
@@ -149,9 +156,12 @@ def prerequisite(*prerequisites):
 def build(docker_container, args):
     make_target = getattr(args, 'make_target', DEFAULT_MAKE_TARGET)
     developer_mode = getattr(args, 'developer_mode', DEFAULT_DEVEL_MODE)
+    builddep_opts = getattr(args, 'builddep_opts', None)
 
     docker_container.build(
-        make_target=make_target, developer_mode=developer_mode)
+        make_target=make_target,
+        developer_mode=developer_mode,
+        builddep_opts=builddep_opts)
 
 
 @prerequisite(build)
