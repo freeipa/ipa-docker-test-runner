@@ -179,6 +179,7 @@ class IPAContainer:
 
         builddep_cmd.extend(['--spec', 'freeipa.spec.in'])
 
+        self.exec_command(['sleep', '10'])
         self.exec_command(builddep_cmd)
         self.exec_command(build_cmd)
 
