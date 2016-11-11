@@ -156,6 +156,44 @@ def get_ipa_run_tests_options(config):
     return result
 
 
+class DeepChainMap(ChainMap):
+    """
+    ChainMap implementation that supports overriding of nested dictionaries
+
+    Adapted from
+    http://www.saltycrane.com/blog/2014/02/recursive-chained-map-lookups/
+    """
+    def __getitem__(self, key):
+        values = []
+        for mapping in self.maps:
+            try:
+                values.append(mapping[key])
+            except KeyError:
+                pass
+        if not values:
+            raise KeyError
+
+        first = values.pop(0)
+        result = first
+
+        if isinstance(first, dict):
+            values = [x for x in values if isinstance(x, dict)]
+            if values:
+                values.insert(0, first)
+                result = self.__class__(*values)
+
+        return result
+
+    def to_dict(self):
+        result = {}
+        for key, value in self.items():
+            if isinstance(value, self.__class__):
+                result[key] = value.to_dict()
+            else:
+                result[key] = value
+
+        return result
+
 class IPADockerConfig(object):
     """
     An object which encapsulates the merged default options and options
@@ -166,8 +204,8 @@ class IPADockerConfig(object):
     The config items can be retrieved using dict access with keys
     """
     def __init__(self):
-        self.config = ChainMap(load_default_config_file(),
-                               constants.DEFAULT_CONFIG)
+        self.config = DeepChainMap(load_default_config_file(),
+                                   constants.DEFAULT_CONFIG)
 
         logger.debug("Flat configuration: %s", self.to_dict())
 
@@ -181,7 +219,7 @@ class IPADockerConfig(object):
         """
         Squash the config to single dict and return that
         """
-        return {k: v for k, v in self.config.items()}
+        return self.config.to_dict()
 
     def write_config(self, output_file):
         """
