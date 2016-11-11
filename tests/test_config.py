@@ -155,3 +155,34 @@ def test_write_config(ipaconfig):
         os.unlink(config_file)
     except OSError:
         pass
+
+CLI_OPTION_OVERRIDES = {
+    '--git-repo': 'custom/repo',
+    '--container-image': 'custom_image',
+    '--container-hostname': 'custom_hostname',
+    '--host-privileged': False,
+    '--tests-ignore': ['test_xmlrpc']
+}
+
+EXPECTED_OVERRIDE_DICT = {
+    'git_repo': 'custom/repo',
+    'container': {
+        'image': 'custom_image',
+        'hostname': 'custom_hostname'
+    },
+    'host': {
+        'privileged': False,
+    },
+    'tests': {
+        'ignore': ['test_xmlrpc']
+    }
+}
+
+
+def test_opt_names_to_overrides():
+    actual_overrides = {}
+
+    for override_name, value in CLI_OPTION_OVERRIDES.items():
+        config.opt_name_to_override(override_name, value, actual_overrides)
+
+    assert actual_overrides == EXPECTED_OVERRIDE_DICT
