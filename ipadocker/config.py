@@ -203,9 +203,13 @@ class IPADockerConfig(object):
 
     The config items can be retrieved using dict access with keys
     """
-    def __init__(self):
-        self.config = DeepChainMap(load_default_config_file(),
-                                   constants.DEFAULT_CONFIG)
+    def __init__(self, *overrides):
+        """
+        the contents of default config file and default values from
+        constants.py are appended to the overrides as fallbacks
+        """
+        overrides += (load_default_config_file(), constants.DEFAULT_CONFIG)
+        self.config = DeepChainMap(*overrides)
 
         logger.debug("Flat configuration: %s", self.to_dict())
 

@@ -79,6 +79,30 @@ def test_config_validation(config_dict):
         config.validate_config(config_dict['data'], constants.DEFAULT_CONFIG)
 
 
+def test_config_overrides():
+    overrides = {
+        'git_repo': 'custom/repo',
+        'container': {
+            'image': 'custom-image'
+        },
+        'host': {
+            'tmpfs': ['/var/tmp']
+        },
+        'server': {
+            'domain': 'example.org'
+        }
+    }
+
+    test_config = config.IPADockerConfig(overrides)
+
+    for key, value in overrides.items():
+        if isinstance(value, dict):
+            for key2, value2 in overrides[key].items():
+                assert test_config[key][key2] == value2
+        else:
+            assert test_config[key] == value
+
+
 IPA_RUN_TESTS_CONFIGS = {
     ('--verbose', '--ignore', 'test_integration'): OrderedDict(
         (
