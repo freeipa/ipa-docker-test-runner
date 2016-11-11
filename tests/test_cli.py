@@ -141,6 +141,18 @@ CLI_ARGUMENTS = {
             'path': [],
             'debug': True
         }
+    },
+    '--container-image custom-image --git-repo git/repo run-tests': {
+        'action': cli.run_tests,
+        'args': {
+            'path': [],
+            'cli_overrides': {
+                'git_repo': 'git/repo',
+                'container': {
+                    'image': 'custom-image'
+                }
+            }
+        }
     }
 }
 

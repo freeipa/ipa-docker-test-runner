@@ -20,6 +20,21 @@ DEFAULT_DEVEL_MODE = False
 logger = logging.getLogger(__name__)
 
 
+def _ensure_override_not_none(args, dest):
+    if getattr(args, dest) is None:
+        setattr(args, dest, {})
+
+
+class StoreCLIOverride(argparse.Action):
+    def __call__(self, parser, args, values, option_string=None):
+        _ensure_override_not_none(args, self.dest)
+
+        config.opt_name_to_override(
+            option_string,
+            values,
+            getattr(args, self.dest))
+
+
 def setup_loggers(args):
     log_level = logging.DEBUG if args.debug else logging.INFO
 
@@ -78,6 +93,20 @@ def make_parser():
         action='store_true',
         default=False,
         help="Do not stop and remove container at the end"
+    )
+    parser.add_argument(
+        '--git-repo',
+        dest='cli_overrides',
+        action=StoreCLIOverride,
+        help='git repository to use',
+        metavar='PATH'
+    )
+    parser.add_argument(
+        '--container-image',
+        dest='cli_overrides',
+        action=StoreCLIOverride,
+        help='container image to use',
+        metavar='IMAGE_NAME'
     )
 
     subcommands = parser.add_subparsers(
@@ -280,7 +309,7 @@ def main():
     logger.info("Reading configuration")
 
     try:
-        ipaconfig = config.IPADockerConfig()
+        ipaconfig = config.IPADockerConfig(args.cli_overrides)
     except ValueError as e:
         logger.error("Failed to read configuration: %s", e)
         sys.exit(1)
