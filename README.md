@@ -1,4 +1,4 @@
-IPA-Docker test runner
+IPA-Docker test runner [![Build Status](https://travis-ci.org/martbab/ipa-docker-test-runner.svg?branch=master)](https://travis-ci.org/martbab/ipa-docker-test-runner)
 ======================
 
 A simple and dumb tool to run [FreeIPA](https://github.com/freeipa/freeipa)
@@ -32,7 +32,7 @@ Clone the git repo and run:
 
 You can also use pip to install `ipa-docker-test-runner` directly from github:
 
-   pip3 install git+https://github.com/martbab/ipa-docker-test-runner
+    pip3 install git+https://github.com/martbab/ipa-docker-test-runner
 
 To install it only for you local user, pass `--user` option to pip. After
 installation you should have `ipa-docker-test-runner` script in your $PATH.
