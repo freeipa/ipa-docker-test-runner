@@ -26,6 +26,13 @@ def _ensure_override_not_none(args, dest):
 
 
 class StoreCLIOverride(argparse.Action):
+    def __init__(self, option_strings, dest, nargs=None, const=None,
+                 default=dict(), type=None, choices=None, required=False,
+                 help=None, metavar=None):
+        super().__init__(option_strings, dest, nargs=nargs, const=const,
+                         default=default, type=type, choices=choices,
+                         required=required, help=help)
+
     def __call__(self, parser, args, values, option_string=None):
         _ensure_override_not_none(args, self.dest)
 
