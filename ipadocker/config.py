@@ -194,6 +194,7 @@ class DeepChainMap(ChainMap):
 
         return result
 
+
 class IPADockerConfig(object):
     """
     An object which encapsulates the merged default options and options

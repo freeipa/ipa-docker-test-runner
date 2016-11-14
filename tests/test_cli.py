@@ -84,7 +84,7 @@ def test_root_function(call_stack, arguments):
 
 def test_next_function(call_stack, arguments):
     """
-    next_function() should leave 'root' and 'next' in the stack 
+    next_function() should leave 'root' and 'next' in the stack
     """
     next_function(call_stack, arguments)
     assert call_stack == ['root', 'next']
