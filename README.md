@@ -24,18 +24,25 @@ production-ready images with FreeIPA server and SSSD client.
 Installation
 ------------
 
-You need to have python3 install along with PyYAML and docker-py packages.
+You need to have python3 installed along with PyYAML and docker-py packages.
+If you wish to run the included tests you need to have pytest installed as
+well.
 
-Clone the git repo and run:
+The safest way is to clone the git repo and install the package into clean
+Python root using virtualenv:
 
-    sudo python3 setup.py install
+    $ python3 -m venv venv
+    $ venv/bin/pip install .
+    $ venv/bin/ipa-docker-test-runner
 
 You can also use pip to install `ipa-docker-test-runner` directly from github:
 
-    pip3 install git+https://github.com/martbab/ipa-docker-test-runner
+    pip3 install --user git+https://github.com/martbab/ipa-docker-test-runner
 
-To install it only for you local user, pass `--user` option to pip. After
-installation you should have `ipa-docker-test-runner` script in your $PATH.
+It is preferrable to install ipa-docker-test-runner into the local user's
+PYTHONPATH in order to avoid clashes with the packages installed system-wide.
+After installation you should have `ipa-docker-test-runner` script in your
+$PATH.
 
 Configuration
 -------------
