@@ -40,6 +40,7 @@ DEFAULT_HOST_CONFIG = {
 
 DEFAULT_SERVER_CONFIG = {
     'domain': 'ipa.test',
+    'realm': 'IPA.TEST',
     'setup_dns': True,
     'password': 'Secret123'
 }
