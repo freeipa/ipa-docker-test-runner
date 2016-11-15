@@ -54,10 +54,44 @@ DEFAULT_IPA_RUN_TEST_CONFIG = {
     'verbose': True
 }
 
+DEFAULT_STEP_CONFIG = {
+    'builddep': [
+        'dnf builddep -y ${builddep_opts} --spec freeipa.spec.in',
+    ],
+    'configure': [
+        'autoreconf -i && ./configure',
+    ],
+    'lint': [
+        'make lint'
+    ],
+    'build': [
+        'make ${make_target}'
+    ],
+    'install_packages': [
+        ('dnf install -y ${container_working_dir}/dist/rpms/*.rpm --best '
+         '--allowerasing')
+    ],
+    'install_server': [
+        ('ipa-server-install -U --domain ${server_domain} '
+         '--realm ${server_realm} -p ${server_password} -a ${server_password} '
+         '--setup-dns --auto-forwarders'),
+        'ipa-kra-install -p ${server_password}'
+    ],
+    'prepare_tests': [
+        'echo ${server_password} | kinit admin && ipa ping',
+        'cp -r /etc/ipa/* /root/.ipa/.',
+        'echo ${server_password} > /root/.ipa/.dmpw'
+    ],
+    'run_tests': [
+        'ipa-run-tests ${tests_ignore} ${tests_verbose} ${path}'
+    ],
+}
+
 DEFAULT_CONFIG = {
     'git_repo': DEFAULT_GIT_REPO,
     'container': DEFAULT_CONTAINER_CONFIG,
     'host': DEFAULT_HOST_CONFIG,
     'server': DEFAULT_SERVER_CONFIG,
-    'tests': DEFAULT_IPA_RUN_TEST_CONFIG
+    'tests': DEFAULT_IPA_RUN_TEST_CONFIG,
+    'steps': DEFAULT_STEP_CONFIG
 }
