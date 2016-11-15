@@ -11,7 +11,7 @@ import sys
 
 import docker
 
-from ipadocker import config, constants, container
+from ipadocker import command, config, constants, container
 
 
 DEFAULT_MAKE_TARGET = 'rpms'
@@ -283,7 +283,7 @@ def run_action(ipaconfig, args, action):
     except docker.errors.APIError as e:
         logger.error("Docker API returned an error: %s", e)
         raise
-    except container.ContainerExecError as e:
+    except command.ContainerExecError as e:
         logger.error(e)
         raise
     except Exception as e:
@@ -328,7 +328,7 @@ def main():
 
     try:
         run_action(ipaconfig, args, action)
-    except container.ContainerExecError as e:
+    except command.ContainerExecError as e:
         sys.exit(e.exit_code)
     except Exception as e:
         logger.debug(e, exc_info=e)
