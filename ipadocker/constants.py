@@ -85,6 +85,9 @@ DEFAULT_STEP_CONFIG = {
     'run_tests': [
         'ipa-run-tests ${tests_ignore} ${tests_verbose} ${path}'
     ],
+    'cleanup': [
+        'chown -R ${uid}:${gid} ${container_working_dir}'
+    ]
 }
 
 DEFAULT_CONFIG = {
