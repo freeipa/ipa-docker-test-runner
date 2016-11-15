@@ -7,6 +7,7 @@ CLI facing part
 
 import argparse
 import logging
+import os
 import sys
 
 import docker
@@ -16,6 +17,7 @@ from ipadocker import command, config, constants, container
 
 DEFAULT_MAKE_TARGET = 'rpms'
 DEFAULT_DEVEL_MODE = False
+DEFAULT_BUILD_OPTS = ['-D "with_lint 1"']
 
 logger = logging.getLogger(__name__)
 
@@ -57,7 +59,7 @@ def setup_loggers(args):
     # exec_logger logs the output from commands executed in the container
     # that's why it has empty formatter so that only the stdout/stderr are
     # printed. Also, do not propagate the logger to upper levels
-    exec_logger = logging.getLogger('.'.join([container.__name__, 'exec']))
+    exec_logger = logging.getLogger('.'.join([command.__name__, 'exec']))
     exec_formatter = logging.Formatter()
     exec_logger.propagate = False
     exec_console = logging.StreamHandler()
@@ -139,7 +141,7 @@ def make_parser():
     build_cmd.add_argument(
         '-b',
         '--builddep-opts',
-        default=['-D "with_lint 1"'],
+        default=DEFAULT_BUILD_OPTS,
         action='append',
         help="options to pass to 'dnf builddep'"
     )
@@ -169,6 +171,22 @@ def make_parser():
     return parser
 
 
+def run_step(docker_container, step_name, **kwargs):
+
+    step_cfg = docker_container.config['steps']
+    flat_cfg = docker_container.config.flatten()
+
+    try:
+        step = command.ExecutionStep(
+            step_cfg[step_name],
+            flat_cfg,
+            **kwargs
+        )
+        step(docker_container)
+    except KeyError as e:
+        raise RuntimeError('Invalid template variable: {}'.format(e))
+
+
 def prerequisite(*prerequisites):
     """
     This decorator marks functions that must be run successfuly before the
@@ -192,34 +210,49 @@ def prerequisite(*prerequisites):
 def build(docker_container, args):
     make_target = getattr(args, 'make_target', DEFAULT_MAKE_TARGET)
     developer_mode = getattr(args, 'developer_mode', DEFAULT_DEVEL_MODE)
-    builddep_opts = getattr(args, 'builddep_opts', None)
+    builddep_opts = getattr(args, 'builddep_opts', DEFAULT_BUILD_OPTS)
 
-    docker_container.build(
-        make_target=make_target,
-        developer_mode=developer_mode,
-        builddep_opts=builddep_opts)
+    run_step(
+        docker_container, 'builddep', builddep_opts=' '.join(builddep_opts))
+
+    run_step(docker_container, 'configure')
+
+    if not developer_mode:
+        run_step(docker_container, 'lint')
+
+    run_step(docker_container, 'build', make_target=make_target)
 
 
 @prerequisite(build)
 def install_packages(docker_container, args):
-    docker_container.install_packages()
+    run_step(docker_container, 'install_packages')
 
 
 @prerequisite(install_packages)
 def install_server(docker_container, args):
-    docker_container.install_server()
+    run_step(docker_container, 'install_server')
 
 
 @prerequisite(install_server)
 def prepare_tests(docker_container, args):
-    docker_container.prepare_tests()
+    run_step(docker_container, 'prepare_tests')
 
 
 @prerequisite(prepare_tests)
 def run_tests(docker_container, args):
-    path = getattr(args, 'path', None)
+    path = getattr(args, 'path', [])
+    ignore_config = docker_container.config['tests']['ignore']
+    verbose_config = docker_container.config['tests']['verbose']
 
-    docker_container.run_tests(path=path)
+    tests_ignore = ['--ignore {}'.format(p) for p in ignore_config]
+    tests_verbose = '' if not verbose_config else '--verbose'
+
+    run_step(
+        docker_container,
+        'run_tests',
+        path=' '.join(path),
+        tests_ignore=' '.join(tests_ignore),
+        tests_verbose=tests_verbose)
 
 
 def sample_config(ipaconfig, logger):
@@ -290,7 +323,7 @@ def run_action(ipaconfig, args, action):
         logger.error("An exception has occured when running command: %s", e)
         raise
     finally:
-        chown_git_repo(ipacontainer)
+        run_step(ipacontainer, 'cleanup', uid=os.getuid(), gid=os.getgid())
         if args.no_cleanup:
             logger.info("Container cleanup suppressed.")
             logger.info(

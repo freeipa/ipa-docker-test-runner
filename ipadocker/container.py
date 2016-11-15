@@ -11,7 +11,7 @@ import os
 
 import docker
 
-from ipadocker import command, config
+from ipadocker import command
 
 
 def _bind_git_repo(config):
@@ -95,118 +95,6 @@ class IPAContainer:
         """
         return self.docker_client.inspect_container(
             self.container_id)['State']['Status']
-
-    def exec_command(self, cmd):
-        """
-        Execute a command in container
-
-        :param cmd: Command to run, can be string or list/tuple
-
-        :raises: ContainerExecError when the process exists with non-zero
-        status
-        """
-        self.logger.info("Executing command: %s", cmd)
-
-        exit_code = command.exec_command(
-            self.docker_client, self.container_id, cmd)
-
-        if exit_code:
-            raise command.ContainerExecError(cmd, exit_code)
-
-    def build(self, make_target='rpms', developer_mode=False,
-              builddep_opts=None):
-        """
-        Build FreeIPA packages, i.e. run `make rpms` by default
-
-        :param make_target: custom target for make, e.g. `lint`
-        :param developer_mode: Ignore pylint errors (sets DEVELOPER_MODE
-        :param builddep_opts: If not None, a list of options to pass to `dnf
-            builddep`
-        environment variable to 1)
-        """
-        build_cmd = ['make', make_target]
-
-        if developer_mode:
-            build_cmd.insert(0, 'DEVELOPER_MODE=1')
-
-        builddep_cmd = ['dnf', 'builddep', '-y']
-        if builddep_opts is not None:
-            builddep_cmd.extend(builddep_opts)
-
-        builddep_cmd.extend(['--spec', 'freeipa.spec.in'])
-
-        self.exec_command(['sleep', '10'])
-        self.exec_command(builddep_cmd)
-        self.exec_command(build_cmd)
-
-    def install_packages(self):
-        """
-        Install RPM packages from working_dir/dist/rpms directory
-        """
-        rpms_path = os.path.join(
-            self.config['container']['working_dir'], 'dist', 'rpms', '*.rpm')
-        cmd = 'dnf install -y {}'.format(rpms_path)
-
-        self.exec_command(cmd)
-
-    def install_server(self):
-        """
-        Install FreeIPA server and KRA inside the container.
-        """
-        domain = self.config['server']['domain']
-        realm = domain.upper()
-        password = self.config['server']['password']
-        setup_dns = self.config['server']['setup_dns']
-
-        cmd = ['ipa-server-install', '-U', '--domain', domain, '--realm',
-               realm, '-p', password, '-a', password, '--auto-forwarders']
-
-        if setup_dns:
-            cmd.append('--setup-dns')
-
-        self.exec_command(cmd)
-        self.exec_command('ipa-kra-install -p {}'.format(password))
-
-    def prepare_tests(self):
-        """
-        prepare for running out-of-tree tests inside the container:
-            * create /root/.ipa directory and copy files from /etc/ipa/ there
-            * kinit as admin
-            * store directory manager password in /etc/.ipa/.dmpw (needed for
-              some Backend tests)
-        """
-        password = self.config['server']['password']
-        self.exec_command(
-            'echo {} | kinit admin && ipa ping'.format(password))
-
-        self.exec_command('cp -r /etc/ipa/* /root/.ipa/.')
-        self.exec_command('echo {} > /root/.ipa/.dmpw'.format(password))
-
-    def run_tests(self, path=None):
-        """
-        Run out-of-tree tests. Integration tests will be skipped
-
-        :param path: list of paths to execute (default: None, that means
-        discovers all tests in `ipatests` directory)
-        """
-        cmd = ['ipa-run-tests']
-        cmd.extend(config.get_ipa_run_tests_options(self.config))
-
-        if path is not None:
-            cmd.extend(path)
-
-        self.exec_command(cmd)
-
-    def chown_working_dir(self):
-        """
-        Recursively set the owner of the working directory back to the user
-        """
-        cmd = 'chown -R {}:{} {}'.format(
-            os.getuid(),
-            os.getgid(),
-            self.config['container']['working_dir'])
-
-        self.exec_command(cmd)
 
     def stop(self):
         """
