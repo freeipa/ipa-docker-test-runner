@@ -186,3 +186,36 @@ def test_opt_names_to_overrides():
         config.opt_name_to_override(override_name, value, actual_overrides)
 
     assert actual_overrides == EXPECTED_OVERRIDE_DICT
+
+
+NESTED_MAPPING = {
+    'key1': 'value1',
+    'key2': {
+        'nested_key1': 42,
+        'nested_key2': False
+    },
+    'key3': {
+        'nested_key3': {
+            'nested_key4': 'value2',
+            'nested_key5': 'value3'
+        },
+        'nested_key6': None
+    }
+}
+
+FLAT_MAPPING = {
+    'key1': 'value1',
+    'key2_nested_key1': 42,
+    'key2_nested_key2': False,
+    'key3_nested_key3_nested_key4': 'value2',
+    'key3_nested_key3_nested_key5': 'value3',
+    'key3_nested_key6': None
+}
+
+
+def test_flattened_mapping():
+    """
+    Tests that the `flatten_mapping` function does what it advertises
+    """
+    flat_mapping = config.flatten_mapping(NESTED_MAPPING)
+    assert flat_mapping == FLAT_MAPPING

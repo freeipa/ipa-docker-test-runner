@@ -195,6 +195,34 @@ class DeepChainMap(ChainMap):
         return result
 
 
+def flatten_mapping(mapping, separator='_', path=()):
+    """
+    Flatten a nested mapping, i.e. return a flat dict by transforming keys
+
+    :param mapping: nested mapping to transform
+    :param separator: separator which will be used in key concatenation from
+        nested mapping
+    :param path: stack holding keys of previous nesting levels
+
+    :returns: one-level mappings with the keys constructed from nested
+        dictionary keys by concatenation with separator
+    """
+    flat_mapping = {}
+
+    for key, value in mapping.items():
+        if isinstance(value, dict):
+            new_path = path + (key,)
+            flat_mapping.update(
+                flatten_mapping(
+                    mapping[key], separator=separator, path=new_path))
+        else:
+            items = path + (key,)
+            flat_key = separator.join(items)
+            flat_mapping[flat_key] = value
+
+    return flat_mapping
+
+
 class IPADockerConfig(object):
     """
     An object which encapsulates the merged default options and options
@@ -225,6 +253,18 @@ class IPADockerConfig(object):
         Squash the config to single dict and return that
         """
         return self.config.to_dict()
+
+    def flatten(self, separator='_'):
+        """
+        return a flat dict representing the config. The keys in this one level
+        representation are in the form separated by underscores
+        (e.g. config['container']['image'] becomes
+        flat_config['container{separator}image']
+
+        :param separator: a string that will be use to concatenate nested keys
+        :returns flattened view of the config:
+        """
+        return flatten_mapping(self.config.to_dict(), separator=separator)
 
     def write_config(self, output_file):
         """
