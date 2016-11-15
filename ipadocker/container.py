@@ -6,27 +6,12 @@ Class encapsulating the state and operations on an IPA container
 """
 
 import copy
-import itertools
 import logging
 import os
 
 import docker
 
-from ipadocker import config
-
-
-class ContainerExecError(Exception):
-    """
-    Exception raised when the command execution inside the container fails
-
-    :param cmd: the command that failed
-    :param exit_code: the returned exit code (default: 1)
-    """
-    def __init__(self, cmd, exit_code=1):
-        self.exit_code = exit_code
-        msg = "Command {} failed (exit code {})".format(cmd, exit_code)
-
-        super(ContainerExecError, self).__init__(msg)
+from ipadocker import command, config
 
 
 def _bind_git_repo(config):
@@ -35,36 +20,6 @@ def _bind_git_repo(config):
     working_dir = config['container']['working_dir']
 
     binds.append(':'.join([git_repo, working_dir, 'rw,Z']))
-
-
-def exec_command(docker_client, container_id, cmd):
-    """
-    Execute a command in running container. A small wrapper around
-    `exec_create` and `exec_start` methods. The command is run inside a spawned
-    bash session
-
-    :param docker_client: Docker Client API instance
-    :param container_id: ID of the running container
-    :param cmd: Command to run, either string or list
-
-    :returns: The exit code of command upon completion
-    """
-    logger = logging.getLogger('.'.join([__name__, 'exec']))
-
-    if not isinstance(cmd, str):
-        command = ' '.join(cmd)
-    else:
-        command = cmd
-
-    bash_command = "bash -c '{}'".format(command)
-
-    exec_id = docker_client.exec_create(container_id, cmd=bash_command)
-
-    for output in docker_client.exec_start(exec_id, stream=True):
-        logger.info(output.decode().rstrip())
-
-    exec_status = docker_client.exec_inspect(exec_id)
-    return exec_status["ExitCode"]
 
 
 def create_container(docker_client, config, logger):
@@ -152,10 +107,11 @@ class IPAContainer:
         """
         self.logger.info("Executing command: %s", cmd)
 
-        exit_code = exec_command(self.docker_client, self.container_id, cmd)
+        exit_code = command.exec_command(
+            self.docker_client, self.container_id, cmd)
 
         if exit_code:
-            raise ContainerExecError(cmd, exit_code)
+            raise command.ContainerExecError(cmd, exit_code)
 
     def build(self, make_target='rpms', developer_mode=False,
               builddep_opts=None):
