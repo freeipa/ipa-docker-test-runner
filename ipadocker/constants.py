@@ -17,7 +17,7 @@ RUN = os.path.join('/', 'run')
 
 DEFAULT_CONFIG_FILE = os.path.expanduser('~/.ipa_docker_config.yaml')
 
-DEFAULT_IMAGE = 'martbab/freeipa-fedora-test-runner:master_latest'
+DEFAULT_IMAGE = 'martbab/freeipa-fedora-test-runner:master-latest'
 
 DEFAULT_GIT_REPO = '/path/to/repo'
 
