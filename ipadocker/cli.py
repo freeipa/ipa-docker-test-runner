@@ -98,6 +98,13 @@ def make_parser():
         help="Log command output to a file"
     )
     parser.add_argument(
+        '-c',
+        '--config',
+        default=None,
+        help='Load configuration specified file',
+        metavar="FILENAME"
+    )
+    parser.add_argument(
         '--no-cleanup',
         action='store_true',
         default=False,
@@ -335,6 +342,32 @@ def run_action(ipaconfig, args, action):
         stop_and_remove_container(ipacontainer)
 
 
+def load_config_file(filename):
+    try:
+        with open(filename, 'r') as config_file:
+            return config.load_config_from_file(config_file)
+    except OSError as e:
+        logger.error("Failed to open config file: %s", e)
+        sys.exit(2)
+
+
+def create_ipaconfig(args):
+    logger.info("Loading configuration")
+    try:
+        # CLI overrides have the highest priority
+        overrides = [args.cli_overrides]
+
+        # overrides from CLI-specified config are next
+        if args.config is not None:
+            logger.info("Parsing configuration file %s", args.config)
+            overrides.append(load_config_file(args.config))
+
+        return config.IPADockerConfig(*overrides)
+    except ValueError as e:
+        logger.error("Failed to read configuration: %s", e)
+        sys.exit(1)
+
+
 def main():
     argparser = make_parser()
 
@@ -346,13 +379,8 @@ def main():
 
     logger.debug("Argument namespace: %s", args)
     logger.info("Starting %s", sys.argv[0])
-    logger.info("Reading configuration")
 
-    try:
-        ipaconfig = config.IPADockerConfig(args.cli_overrides)
-    except ValueError as e:
-        logger.error("Failed to read configuration: %s", e)
-        sys.exit(1)
+    ipaconfig = create_ipaconfig(args)
 
     action = get_action(args.action_name)
     if action is sample_config:

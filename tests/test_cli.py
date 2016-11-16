@@ -5,9 +5,13 @@
 Tests for CLI frontend
 """
 
-import pytest
+import os
+import tempfile
 
-from ipadocker import cli
+import pytest
+import yaml
+
+from ipadocker import cli, constants
 
 
 def root_function(stack, args):
@@ -171,6 +175,70 @@ def parser():
     Create CLI frontend parser
     """
     return cli.make_parser()
+
+
+TEST_IMAGE_LATEST = 'test-image:latest'
+TEST_INSTALL_STEP = ['dnf install -y freeipa-server --best --allowerasing']
+TEST_GIT_REPO = '/test/repo.git'
+
+TEST_CONFIG_VALUES = {
+    'git_repo': TEST_GIT_REPO,
+    'container': {
+        'image': TEST_IMAGE_LATEST
+    },
+    'host': {
+        'privileged': False
+    },
+    'steps': {
+        'install_packages': TEST_INSTALL_STEP
+    }
+}
+
+
+@pytest.yield_fixture()
+def config_file():
+    """
+    Generate a sample config file with overrides
+    """
+    fd, config_filename = tempfile.mkstemp()
+    os.close(fd)
+
+    try:
+        with open(config_filename, 'w') as test_config:
+            yaml.safe_dump(TEST_CONFIG_VALUES, test_config,
+                           default_flow_style=False)
+        yield config_filename
+    finally:
+        try:
+            os.remove(config_filename)
+        except OSError:
+            pass
+
+
+def test_config_file_cli_arg_override(parser, config_file):
+    """
+    Test overriding from config file and CLI args
+    """
+    args_w_config_override = parser.parse_args(['-c', config_file, 'build'])
+
+    config_obj = cli.create_ipaconfig(args_w_config_override)
+
+    assert config_obj['container']['image'] == TEST_IMAGE_LATEST
+    assert config_obj['git_repo'] == TEST_GIT_REPO
+    assert config_obj['steps']['install_packages'] == TEST_INSTALL_STEP
+
+    overriden_image = 'overriden-image:cli'
+    args_w_cli_override = parser.parse_args(['-c', config_file,
+                                             '--container-image',
+                                             overriden_image,
+                                             'install-server'])
+    config_obj = cli.create_ipaconfig(args_w_cli_override)
+    assert config_obj['container']['image'] == overriden_image
+    assert (
+        config_obj['steps']['install_packages'] ==
+        TEST_CONFIG_VALUES['steps']['install_packages'])
+    assert (
+        config_obj['container']['working_dir'] == constants.FREEIPA_MNT_POINT)
 
 
 def test_cli_args(parser, cli_args):
