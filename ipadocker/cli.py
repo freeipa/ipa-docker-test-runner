@@ -266,6 +266,9 @@ def sample_config(ipaconfig, logger):
     logger.info("Writing configuration to file %s",
                 constants.DEFAULT_CONFIG_FILE)
 
+    if not os.path.exists(constants.CONFIG_DIR):
+        os.mkdir(constants.CONFIG_DIR)
+
     with open(constants.DEFAULT_CONFIG_FILE, 'w') as default_config_file:
         ipaconfig.write_config(default_config_file)
 

@@ -15,7 +15,17 @@ DEV_RANDOM = os.path.join('/', 'dev', 'random')
 TMP = os.path.join('/', 'tmp')
 RUN = os.path.join('/', 'run')
 
-DEFAULT_CONFIG_FILE = os.path.expanduser('~/.ipa_docker_config.yaml')
+APP_NAME = 'ipa-docker-test-runner'
+
+CONFIG_ROOT = os.environ.get(
+    'XDG_CONFIG_HOME', os.path.expanduser('~/.config'))
+
+CONFIG_DIR = os.path.join(CONFIG_ROOT, APP_NAME)
+
+DEFAULT_CONFIG_FILE = os.path.join(
+    CONFIG_DIR,
+    'config.yaml'
+)
 
 DEFAULT_IMAGE = 'martbab/freeipa-fedora-test-runner:master-latest'
 
