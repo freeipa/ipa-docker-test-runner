@@ -61,6 +61,10 @@ project git repo.
 Also make sure you have Docker daemon up and running and that you are member
 of `docker` group and can thus use it without root privileges.
 
+You may specify alternative configuration file by specifying '-c/--config'
+option. The values in this file will override user-wide configuration, which
+in turn overrides hard-coded defaults.
+
 Usage
 -----
 
@@ -94,6 +98,58 @@ in the repo from root back to the user, there is no additional cleanup
 performed by the script. This is on purpose: since it is expected to be used
 with a git repo, you can use `git clean -dfx` to remove all mess left behind
 by build process.
+
+Configuration of sub-commands
+-----------------------------
+
+`ipa-docker-test-runner` stores the configuration of the individual steps
+undertaken during the run in the 'steps' subsection of the configuration file.
+This allows for some degree of fine-tuning the exact workflow to suit you
+particular needs. Some of the steps can re-use configuration variables from
+other sections via a simple Python string templating.
+
+The steps undertaken by `build` sub-command are the following:
+
+* `builddep`:
+  install the build dependencies missing in the Docker image (e.g. because you
+  added some new ones)
+
+* `configure`:
+  run autoconf/automake to generate platform specific files and build
+  directives
+
+* `lint`:
+  run pylint and jslint. This steps is skipped when `--developer-mode` is
+  specified in the `build` subcommand
+
+* `build`:
+  build the target `${make_target}` specified by CLI option (rpms by default)
+
+`install-server` sub-command uses the following:
+
+* `install_packages`:
+  install RPMS from the build step. You may change this to install from COPR
+  or official repo.
+
+* `install_server`:
+  install FreeIPA server using directives from `server` subsection
+  (`${server_realm}`, `${server_domain}`, etc.). Also installs additional
+  components such as KRA, smb, etc.
+
+`run-tests` runs the following:
+
+* `prepare_tests`:
+  prepare the testing infrastructure (local .ipa directory, DM passwords
+  etc.). `${server_password}` is expanded in the DM/admin password specified
+  in the `server` subsection.
+
+* run-tests:
+  executes `ipa-run-tests`. If `verbose` is set to true in `tests`, verbose
+  output is produced. `ignore` directive is expanded via `${tests_ignore}` to
+  a series of `--ignore TEST` options causing pytest to ignore the
+  files/directories during discovery. `${path}` variable is expanded into any
+  paths specified as arguments to `run-tests` sub-command, or into empty
+  string (run everything that is not ignored)
 
 Accessing the container
 -----------------------
