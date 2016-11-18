@@ -12,6 +12,13 @@ from setuptools import find_packages
 setup(
     author='Martin Babinsky',
     author_email='martbab@gmail.com',
+    classifiers=[
+        "Development Status :: 3 - Alpha",
+        "Intended Audience :: Developers",
+        ("License :: OSI Approved :: GNU Lesser General Public License v3 or "
+         "later (LGPLv3+)"),
+        "Topic :: Utilities",
+    ],
     description='A program which builds FreeIPA and runs tests '
                 'in a Docker container',
     entry_points={
