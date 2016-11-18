@@ -151,6 +151,11 @@ The steps undertaken by `build` sub-command are the following:
   paths specified as arguments to `run-tests` sub-command, or into empty
   string (run everything that is not ignored)
 
+There is one last special step, `cleanup` which is called at the end of the
+run or whenever an error occurs. By default it resets the ownership of the git
+repo, but you may supply some additional tasks, like cleaning untracked files
+etc.
+
 Accessing the container
 -----------------------
 
