@@ -85,7 +85,9 @@ DEFAULT_STEP_CONFIG = {
         ('ipa-server-install -U --domain ${server_domain} '
          '--realm ${server_realm} -p ${server_password} -a ${server_password} '
          '--setup-dns --auto-forwarders'),
-        'ipa-kra-install -p ${server_password}'
+        'ipa-kra-install -p ${server_password}',
+        ('ipa-adtrust-install -U --enable-compat --add-sids '
+         '-a ${server_password}')
     ],
     'prepare_tests': [
         'echo ${server_password} | kinit admin && ipa ping',

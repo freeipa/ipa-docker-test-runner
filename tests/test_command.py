@@ -29,7 +29,9 @@ DEFAULT_BUILDS_SUBSTITUTED = {
         ('ipa-server-install -U --domain ipa.test '
          '--realm IPA.TEST -p Secret123 -a Secret123 '
          '--setup-dns --auto-forwarders'),
-        'ipa-kra-install -p Secret123'
+        'ipa-kra-install -p Secret123',
+        ('ipa-adtrust-install -U --enable-compat --add-sids '
+         '-a Secret123')
     ],
 }
 
