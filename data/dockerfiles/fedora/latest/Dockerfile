@@ -4,7 +4,7 @@ ENV container=docker LANG=en_US.utf8 LANGUAGE=en_US.utf8 LC_ALL=en_US.utf8
 RUN dnf copr enable -y @freeipa/freeipa-4-4 \
     && dnf config-manager --set-enabled updates-testing \
     && dnf install -y freeipa-server freeipa-server-dns \
-        freeipa-server-trust-ad python-ipatests --best \
+        freeipa-server-trust-ad python-ipatests --best --allowerasing \
     && dnf clean all \
     && for i in /usr/lib/systemd/system/*-domainname.service; \
     do sed -i 's#^ExecStart=/#ExecStart=-/#' $i ; done
