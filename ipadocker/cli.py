@@ -173,6 +173,11 @@ def make_parser():
         help="Write sample config file into {}".format(
             constants.DEFAULT_CONFIG_FILE)
     )
+    subcommands.add_parser(
+        'lint',
+        help="run linters in the container. Can't be used with "
+        "--developer-mode"
+    )
 
     return parser
 
@@ -213,6 +218,29 @@ def prerequisite(*prerequisites):
     return mark_prerequisite
 
 
+def builddep(docker_container, args):
+    builddep_opts = getattr(args, 'builddep_opts', DEFAULT_BUILD_OPTS)
+
+    run_step(
+        docker_container, 'builddep', builddep_opts=' '.join(builddep_opts))
+
+
+@prerequisite(builddep)
+def configure(docker_container, args):
+    run_step(docker_container, 'configure')
+
+
+@prerequisite(configure)
+def lint(docker_container, args):
+    developer_mode = getattr(args, 'developer_mode', DEFAULT_DEVEL_MODE)
+
+    if developer_mode:
+        return
+
+    run_step(docker_container, 'lint')
+
+
+@prerequisite(lint)
 def build(docker_container, args):
     make_target = getattr(args, 'make_target', DEFAULT_MAKE_TARGET)
     developer_mode = getattr(args, 'developer_mode', DEFAULT_DEVEL_MODE)
@@ -276,6 +304,7 @@ def get_action(cli_name):
     return {
         'build': build,
         'install-server': install_server,
+        'lint': lint,
         'run-tests': run_tests,
         'sample-config': sample_config
     }[cli_name]
@@ -380,6 +409,10 @@ def main():
     args = argparser.parse_args()
     if args.action_name is None:
         sys.exit(argparser.print_usage())
+    elif args.action_name == 'lint' and args.developer_mode:
+        argparser.error(
+            "You cannot specify '--developer-mode' option together with "
+            "'{}'".format(args.action_name))
 
     setup_loggers(args)
 

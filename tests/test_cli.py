@@ -157,6 +157,9 @@ CLI_ARGUMENTS = {
                 }
             }
         }
+    },
+    'lint': {
+        'action': cli.lint,
     }
 }
 
