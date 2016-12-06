@@ -332,7 +332,11 @@ def run_action(ipaconfig, args, action):
         logger.error("An exception has occured when running command: %s", e)
         raise
     finally:
-        run_step(ipacontainer, 'cleanup', uid=os.getuid(), gid=os.getgid())
+        try:
+            run_step(ipacontainer, 'cleanup', uid=os.getuid(), gid=os.getgid())
+        except command.ContainerExecError:
+            logger.error("An exception has occured during cleanup: %s", e)
+
         if args.no_cleanup:
             logger.info("Container cleanup suppressed.")
             logger.info(
