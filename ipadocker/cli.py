@@ -124,6 +124,12 @@ def make_parser():
         help='container image to use',
         metavar='IMAGE_NAME'
     )
+    parser.add_argument(
+        '--developer-mode',
+        default=DEFAULT_DEVEL_MODE,
+        action='store_true',
+        help="developer mode (linter errors during build are ignored)."
+    )
 
     subcommands = parser.add_subparsers(
         dest='action_name',
@@ -137,12 +143,6 @@ def make_parser():
         '--make-target',
         default=DEFAULT_MAKE_TARGET,
         help='make target'
-    )
-    build_cmd.add_argument(
-        '--developer-mode',
-        default=DEFAULT_DEVEL_MODE,
-        action='store_true',
-        help="developer mode (pylint errors during build are ignored)."
     )
     build_cmd.add_argument(
         '-b',

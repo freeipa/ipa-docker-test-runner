@@ -119,7 +119,7 @@ def test_final3_function(call_stack, arguments):
 
 
 CLI_ARGUMENTS = {
-    'build --developer-mode --make-target=lint': {
+    '--developer-mode build --make-target=lint': {
         'args': {
             'developer_mode': True,
             'make_target': 'lint'
