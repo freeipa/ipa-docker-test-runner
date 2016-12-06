@@ -135,7 +135,6 @@ def make_parser():
     )
     build_cmd.add_argument(
         '--make-target',
-        choices={'lint', 'srpms', 'rpms', 'check', 'version-update'},
         default=DEFAULT_MAKE_TARGET,
         help='make target'
     )
