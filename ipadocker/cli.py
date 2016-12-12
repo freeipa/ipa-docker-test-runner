@@ -243,17 +243,6 @@ def lint(docker_container, args):
 @prerequisite(lint)
 def build(docker_container, args):
     make_target = getattr(args, 'make_target', DEFAULT_MAKE_TARGET)
-    developer_mode = getattr(args, 'developer_mode', DEFAULT_DEVEL_MODE)
-    builddep_opts = getattr(args, 'builddep_opts', DEFAULT_BUILD_OPTS)
-
-    run_step(
-        docker_container, 'builddep', builddep_opts=' '.join(builddep_opts))
-
-    run_step(docker_container, 'configure')
-
-    if not developer_mode:
-        run_step(docker_container, 'lint')
-
     run_step(docker_container, 'build', make_target=make_target)
 
 
