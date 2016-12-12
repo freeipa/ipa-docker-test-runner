@@ -1,4 +1,4 @@
-IPA-Docker test runner [![Build Status](https://travis-ci.org/martbab/ipa-docker-test-runner.svg?branch=master)](https://travis-ci.org/martbab/ipa-docker-test-runner)
+IPA-Docker test runner [![Build Status](https://travis-ci.org/freeipa/ipa-docker-test-runner.svg?branch=master)](https://travis-ci.org/freeipa/ipa-docker-test-runner)
 ======================
 
 A simple and dumb tool to run [FreeIPA](https://github.com/freeipa/freeipa)
@@ -37,7 +37,7 @@ Python root using virtualenv:
 
 You can also use pip to install `ipa-docker-test-runner` directly from github:
 
-    pip3 install --user git+https://github.com/martbab/ipa-docker-test-runner
+    pip3 install --user git+https://github.com/freeipa/ipa-docker-test-runner
 
 It is preferrable to install ipa-docker-test-runner into the local user's
 PYTHONPATH in order to avoid clashes with the packages installed system-wide.
@@ -179,5 +179,5 @@ Reporting Bugs
 --------------
 
 If you found a bug or would like to propose an enhancement, do not hesitate to
-open an issue on https://github.com/martbab/ipa-docker-test-runner.
+open an issue on https://github.com/freeipa/ipa-docker-test-runner.
 Pull-requests are very welcome. 
