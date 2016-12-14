@@ -219,3 +219,14 @@ def test_flattened_mapping():
     """
     flat_mapping = config.flatten_mapping(NESTED_MAPPING)
     assert flat_mapping == FLAT_MAPPING
+
+
+def test_deepened_mapping():
+    """
+    Tests that the `deepen_mapping` function does its job
+    """
+
+    nested_mapping = config.deepen_mapping(FLAT_MAPPING,
+                                           reference=NESTED_MAPPING)
+
+    assert nested_mapping == NESTED_MAPPING

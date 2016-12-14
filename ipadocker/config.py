@@ -223,6 +223,44 @@ def flatten_mapping(mapping, separator='_', path=()):
     return flat_mapping
 
 
+def deepen_mapping(mapping, separator='_',
+                   reference=None, path=()):
+    """
+    re-create a nested mapping from a flat representation created by
+    @flatten_mapping. A reference dictionary is needed to unambiguously
+    construct all paths
+
+    :param mapping: flat mapping to transform
+    :param separator: separator that was used to concatenate keys in the
+        original nested mapping
+    :param path: stack holding keys of previous nesting levels
+    """
+    if reference is None:
+        reference = constants.DEFAULT_CONFIG
+
+    deep_mapping = {}
+
+    key_prefix = ''
+
+    if path:
+        key_prefix = separator.join(path)
+
+    for key, value in reference.items():
+        path_to_set = path + (key,)
+        if isinstance(value, dict):
+            deep_mapping[key] = deepen_mapping(
+                mapping,
+                separator=separator,
+                reference=value,
+                path=path_to_set)
+        else:
+            flat_key = separator.join([key_prefix, key]) if key_prefix else key
+            if flat_key in mapping:
+                deep_mapping[key] = mapping[flat_key]
+
+    return deep_mapping
+
+
 class IPADockerConfig(object):
     """
     An object which encapsulates the merged default options and options
