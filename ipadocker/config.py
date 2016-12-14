@@ -312,29 +312,3 @@ class IPADockerConfig(object):
         """
         logger.info("Dumping YAML configuration")
         yaml.safe_dump(self.to_dict(), output_file, default_flow_style=False)
-
-
-def opt_name_to_override(name, overriden_value, override_dict,
-                         reference=constants.DEFAULT_CONFIG, path=()):
-    transformed_name = name
-    if not path:
-        transformed_name = name.replace('-', '_')[2:]
-
-    for key, value in reference.items():
-        if transformed_name.startswith(key):
-            if isinstance(value, dict):
-                if key not in override_dict:
-                    override_dict[key] = {}
-
-                sub_dict = override_dict[key]
-                sub_reference = reference[key]
-                path += (key,)
-                sub_name = transformed_name.partition(key)[2][1:]
-
-                opt_name_to_override(
-                    sub_name, overriden_value, sub_dict, sub_reference, path)
-            else:
-                override_dict[key] = overriden_value
-            break
-    else:
-        raise UnknownOption(name, path)

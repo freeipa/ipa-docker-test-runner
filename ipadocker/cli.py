@@ -27,6 +27,10 @@ def _ensure_override_not_none(args, dest):
         setattr(args, dest, {})
 
 
+def _option_name_to_override_name(option_name):
+    return option_name[2:].replace('-', '_')
+
+
 class StoreCLIOverride(argparse.Action):
     def __init__(self, option_strings, dest, nargs=None, const=None,
                  default=dict(), type=None, choices=None, required=False,
@@ -38,10 +42,10 @@ class StoreCLIOverride(argparse.Action):
     def __call__(self, parser, args, values, option_string=None):
         _ensure_override_not_none(args, self.dest)
 
-        config.opt_name_to_override(
-            option_string,
-            values,
-            getattr(args, self.dest))
+        dest = getattr(args, self.dest)
+
+        override_name = _option_name_to_override_name(option_string)
+        dest[override_name] = values
 
 
 def setup_loggers(args):
@@ -379,7 +383,7 @@ def create_ipaconfig(args):
     logger.info("Loading configuration")
     try:
         # CLI overrides have the highest priority
-        overrides = [args.cli_overrides]
+        overrides = [config.deepen_mapping(args.cli_overrides)]
 
         # overrides from CLI-specified config are next
         if args.config is not None:

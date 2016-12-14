@@ -152,9 +152,7 @@ CLI_ARGUMENTS = {
             'path': [],
             'cli_overrides': {
                 'git_repo': 'git/repo',
-                'container': {
-                    'image': 'custom-image'
-                }
+                'container_image': 'custom-image'
             }
         }
     },
