@@ -7,11 +7,6 @@ Class encapsulating the state and operations on an IPA container
 
 import copy
 import logging
-import os
-
-import docker
-
-from ipadocker import command
 
 
 def _bind_git_repo(config):
