@@ -31,23 +31,16 @@ def create_container(docker_client, config, logger):
     logger.info(
         "Creating container from %s", image)
 
-    try:
-        result = docker_client.create_container(
-            host_config=docker_client.create_host_config(
-                **config['host']),
-            **config['container'])
-    except docker.errors.NotFound:
-        logger.info("Image %s not found locally, trying pull...", image)
-        logger.info("This may take a few minutes.")
-        output = docker_client.pull(image)
-        logger.debug(output)
+    logger.info("Pulling image %s, this may take several minutes.", image)
+    output = docker_client.pull(image)
+    logger.debug(output)
 
-        logger.info("Image pulled in successfuly.")
+    logger.info("Image pulled in successfuly.")
 
-        result = docker_client.create_container(
-            host_config=docker_client.create_host_config(
-                **config['host']),
-            **config['container'])
+    result = docker_client.create_container(
+        host_config=docker_client.create_host_config(
+            **config['host']),
+        **config['container'])
 
     return result['Id']
 
