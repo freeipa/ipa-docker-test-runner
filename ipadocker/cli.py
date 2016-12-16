@@ -56,6 +56,13 @@ class StoreCLIOverride(ProcessCLIOverride):
         dest[override_name] = values
 
 
+class AppendCLIOverride(ProcessCLIOverride):
+    def _process_override(self, dest, override_name, values):
+        old_values = dest.setdefault(override_name, [])
+
+        old_values.append(values)
+
+
 def setup_loggers(args):
     log_level = logging.DEBUG if args.debug else logging.INFO
 
