@@ -31,7 +31,7 @@ def _option_name_to_override_name(option_name):
     return option_name[2:].replace('-', '_')
 
 
-class StoreCLIOverride(argparse.Action):
+class ProcessCLIOverride(argparse.Action):
     def __init__(self, option_strings, dest, nargs=None, const=None,
                  default=dict(), type=None, choices=None, required=False,
                  help=None, metavar=None):
@@ -45,6 +45,14 @@ class StoreCLIOverride(argparse.Action):
         dest = getattr(args, self.dest)
 
         override_name = _option_name_to_override_name(option_string)
+        self._process_override(dest, override_name, values)
+
+    def _process_override(self, dest, override_name, values):
+        raise NotImplementedError
+
+
+class StoreCLIOverride(ProcessCLIOverride):
+    def _process_override(self, dest, override_name, values):
         dest[override_name] = values
 
 
