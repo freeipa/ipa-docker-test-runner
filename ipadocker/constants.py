@@ -35,7 +35,8 @@ DEFAULT_CONTAINER_CONFIG = {
     'image': DEFAULT_IMAGE,
     'hostname': 'master.ipa.test',
     'detach': True,
-    'working_dir': FREEIPA_MNT_POINT
+    'working_dir': FREEIPA_MNT_POINT,
+    'environment': []
 }
 
 DEFAULT_HOST_CONFIG = {

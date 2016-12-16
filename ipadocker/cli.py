@@ -41,9 +41,7 @@ class ProcessCLIOverride(argparse.Action):
 
     def __call__(self, parser, args, values, option_string=None):
         _ensure_override_not_none(args, self.dest)
-
         dest = getattr(args, self.dest)
-
         override_name = _option_name_to_override_name(option_string)
         self._process_override(dest, override_name, values)
 
@@ -142,6 +140,13 @@ def make_parser():
         action=StoreCLIOverride,
         help='container image to use',
         metavar='IMAGE_NAME'
+    )
+    parser.add_argument(
+        '--container-environment',
+        dest='cli_overrides',
+        action=AppendCLIOverride,
+        help="List of environment variables to set in container",
+        metavar="ENV=VALUE"
     )
     parser.add_argument(
         '--developer-mode',

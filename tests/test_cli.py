@@ -146,19 +146,22 @@ CLI_ARGUMENTS = {
             'debug': True
         }
     },
-    '--container-image custom-image --git-repo git/repo run-tests': {
+    ('--container-image custom-image --git-repo git/repo '
+     '--container-environment ENV1=VAL1 --container-environment ENV2=VAL2 '
+     'run-tests'): {
         'action': cli.run_tests,
         'args': {
             'path': [],
             'cli_overrides': {
                 'git_repo': 'git/repo',
-                'container_image': 'custom-image'
+                'container_image': 'custom-image',
+                'container_environment': ['ENV1=VAL1', 'ENV2=VAL2']
             }
         }
     },
     'lint': {
         'action': cli.lint,
-    }
+    },
 }
 
 
