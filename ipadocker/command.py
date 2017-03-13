@@ -44,7 +44,7 @@ def exec_command(docker_client, container_id, cmd):
     else:
         command = cmd
 
-    bash_command = "bash -c '{}'".format(command)
+    bash_command = "bash -c '{}'".format(command.replace("'", "'\\''"))
 
     exec_id = docker_client.exec_create(container_id, cmd=bash_command)
 
