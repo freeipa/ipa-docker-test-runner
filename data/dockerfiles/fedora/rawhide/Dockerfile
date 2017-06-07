@@ -1,7 +1,8 @@
 FROM martbab/freeipa-fedora-builder:master-rawhide
 ENV container=docker LANG=en_US.utf8 LANGUAGE=en_US.utf8 LC_ALL=en_US.utf8
 
-RUN dnf install -y freeipa-server freeipa-server-dns \
+RUN dnf copr enable -y @freeipa/freeipa-4-5 \
+    && dnf install -y freeipa-server freeipa-server-dns \
         freeipa-server-trust-ad python-ipatests --best --allowerasing \
     && dnf clean all \
     && for i in /usr/lib/systemd/system/*-domainname.service; \
