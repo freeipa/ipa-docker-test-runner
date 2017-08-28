@@ -1,4 +1,4 @@
-FROM martbab/freeipa-fedora-builder:master-latest
+FROM freeipa/freeipa-builder:master-latest
 ENV container=docker LANG=en_US.utf8 LANGUAGE=en_US.utf8 LC_ALL=en_US.utf8
 
 RUN dnf copr enable -y @freeipa/freeipa-4-5 \
