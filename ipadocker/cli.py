@@ -202,7 +202,10 @@ def make_parser():
         help="run linters in the container. Can't be used with "
         "--developer-mode"
     )
-
+    subcommands.add_parser(
+        'tox',
+        help="run tox in the container."
+    )
     return parser
 
 
@@ -252,6 +255,16 @@ def builddep(docker_container, args):
 @prerequisite(builddep)
 def configure(docker_container, args):
     run_step(docker_container, 'configure')
+
+
+@prerequisite(builddep)
+def tox(docker_container, args):
+    developer_mode = getattr(args, 'developer_mode', DEFAULT_DEVEL_MODE)
+
+    if developer_mode:
+        return
+
+    run_step(docker_container, 'tox')
 
 
 @prerequisite(configure)
@@ -318,6 +331,7 @@ def get_action(cli_name):
         'build': build,
         'install-server': install_server,
         'lint': lint,
+        'tox': tox,
         'run-tests': run_tests,
         'sample-config': sample_config
     }[cli_name]
@@ -422,7 +436,7 @@ def main():
     args = argparser.parse_args()
     if args.action_name is None:
         sys.exit(argparser.print_usage())
-    elif args.action_name == 'lint' and args.developer_mode:
+    elif args.action_name in {'tox', 'lint'} and args.developer_mode:
         argparser.error(
             "You cannot specify '--developer-mode' option together with "
             "'{}'".format(args.action_name))

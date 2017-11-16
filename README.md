@@ -114,6 +114,9 @@ The steps undertaken by `build` sub-command are the following:
   install the build dependencies missing in the Docker image (e.g. because you
   added some new ones)
 
+* `tox`:
+  run tox
+
 * `configure`:
   run autoconf/automake to generate platform specific files and build
   directives

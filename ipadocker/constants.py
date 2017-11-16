@@ -69,6 +69,9 @@ DEFAULT_STEP_CONFIG = {
     'builddep': [
         'dnf builddep -y ${builddep_opts} --spec freeipa.spec.in',
     ],
+    'tox': [
+        'tox'
+    ],
     'configure': [
         'autoreconf -i && ./configure',
     ],
