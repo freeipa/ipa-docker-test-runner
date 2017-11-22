@@ -206,6 +206,10 @@ def make_parser():
         'tox',
         help="run tox in the container."
     )
+    subcommands.add_parser(
+        'webui-unit',
+        help="run webui unit tests in the container."
+    )
     return parser
 
 
@@ -283,6 +287,11 @@ def build(docker_container, args):
     run_step(docker_container, 'build', make_target=make_target)
 
 
+@prerequisite(configure)
+def webui_unit(docker_container, args):
+    run_step(docker_container, 'webui_unit')
+
+
 @prerequisite(build)
 def install_packages(docker_container, args):
     run_step(docker_container, 'install_packages')
@@ -331,6 +340,7 @@ def get_action(cli_name):
         'build': build,
         'install-server': install_server,
         'lint': lint,
+        'webui-unit': webui_unit,
         'tox': tox,
         'run-tests': run_tests,
         'sample-config': sample_config

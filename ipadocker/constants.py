@@ -78,6 +78,12 @@ DEFAULT_STEP_CONFIG = {
     'lint': [
         'make lint'
     ],
+    'webui_unit': [
+        'dnf install -y npm'
+        'cd ${container_working_dir}/install/ui/js/libs && make',
+        'cd ${container_working_dir}/install/ui && npm install',
+        'cd ${container_working_dir}/install/ui && node_modules/grunt/bin/grunt --verbose qunit'
+    ],
     'build': [
         'make ${make_target}'
     ],
