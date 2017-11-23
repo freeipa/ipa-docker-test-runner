@@ -33,6 +33,6 @@ setup(
     package_data={
         'data': ['data/*']
     },
-    version='0.2.2',
+    version='0.3.0',
     url='https://github.com/freeipa/ipa-docker-test-runner',
 )
